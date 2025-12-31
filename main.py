@@ -21,10 +21,11 @@ def main(page: ft.Page):
 	# - functions for login/registration ---
 	# - check user name ---
 	def user_check(user_name):
-		global current_user
+		#global current_user
 		user_url = f"{base_url}users/{user_name}/.json"
 		request = requests.get(user_url+'?auth='+auth_key)
 		current_user = request.json()
+		page.session.set("current_user", current_user)
 
 	# - Login function ---
 	def login(e):
@@ -32,6 +33,7 @@ def main(page: ft.Page):
 		user_pword = profiel_pword.value
 		#check for user name excist
 		user_check(user_name)
+		current_user = page.session.get("current_user")
 		if current_user == None:
 			page.open(ft.SnackBar(ft.Text(f"{user_name} does not exist!"),bgcolor=ft.Colors.RED,))
 			return
@@ -55,6 +57,7 @@ def main(page: ft.Page):
 		user_pword = profiel_pword.value
 		#check if profile excist
 		user_check(user_name)
+		current_user = page.session.get("current_user")
 		if current_user == None:
 			#create url
 			update_url = f"{base_url}/users.json"
@@ -106,6 +109,7 @@ def main(page: ft.Page):
 	# - check for dummy contact ---
 	def dummy_contact():
 		global check_dummy
+		current_user = page.session.get("current_user")
 		#check_dummy_url = f"https://fletchat-73f82-default-rtdb.europe-west1.firebasedatabase.app/users/Add contacts/.json"
 		check_dummy_url =f"{base_url}users/{current_user["Username"]}/Connections/Add%20contacts/.json"
 		request = requests.get(check_dummy_url+'?auth='+auth_key)
@@ -121,6 +125,7 @@ def main(page: ft.Page):
 			page.open(ft.SnackBar(ft.Text(f"{contact_added} doesn't exist!"),bgcolor=ft.Colors.RED,))
 			return
 		# -- update user to database ---
+		current_user = page.session.get("current_user")
 		connection_url = f"{base_url}users/{current_user["Username"]}/Connections/.json"
 		JSON = {contact_added:True}
 		JSON = json.dumps(JSON)
@@ -169,14 +174,30 @@ def main(page: ft.Page):
 	# - add to dropdownlist ---
 	def get_contacts():
 		options = []
+		current_user = page.session.get("current_user")
 		for contact in current_user["Connections"]:
-			#get the first name as active name;
+			print(f"contact; {contact}")
+			# === old block ====
+			"""
 			try:
-				global active_name
+				#global active_name
+				print("hoi")
+				active_name = page.session.get("active_name")
 				if active_name == "":
 					pass
 			except:
 				active_name = contact
+				print(f"active_name; {active_name}")
+				page.session.set("active_name", active_name)
+				test = page.session.set("active_name", active_name)
+			"""
+			# === end old block ===
+			count = 0
+			if count == 0:
+				active_name = contact
+				page.session.set("active_name", active_name)
+				count += 1
+
 			options.append(
 				ft.DropdownOption(
 					key=contact,
@@ -194,8 +215,9 @@ def main(page: ft.Page):
 
 	# - get selected user ---
 	def dropdown_changed(e):
-		global active_name
+		#global active_name
 		active_name=drop_menu.value
+		page.session.set("active_name", active_name)
 		#clear messages
 		messages.controls.clear()
 		upload_msg()
@@ -204,6 +226,7 @@ def main(page: ft.Page):
 	# - load dropdown ---
 	def load_dropdown():
 		#get first contact
+		current_user = page.session.get("current_user")
 		first_contact = current_user["Connections"]
 		first_contact = first_contact
 		for key, value in first_contact.items():
@@ -258,6 +281,9 @@ def main(page: ft.Page):
 	def load_messages():
 		global msg_list
 		# get current user and active user
+		active_name = page.session.get("active_name")
+		current_user = page.session.get("current_user")
+		print(f"active;{active_name}  current;{current_user}")
 		me_user = current_user["Username"]
 		user_list = [me_user, active_name]
 		user_list = sorted(user_list, key=lambda c: c.lower())
@@ -278,6 +304,7 @@ def main(page: ft.Page):
 		for x in msg_list:
 			#messages.controls.append(ft.Text(f"{x['msg']}"))
 			#chek if its from me;
+			current_user = page.session.get("current_user")
 			if x['from'] == current_user['Username']:
 				messages.controls.append(
 					bubble_me(msg=(x['msg']), time=(x['Time'])))
@@ -299,6 +326,8 @@ def main(page: ft.Page):
 		#clear inbox field
 		chat_box.value=""
 		# - save message to database -
+		current_user = page.session.get("current_user")
+		active_name = page.session.get("active_name")
 		from_msg = [current_user["Username"],active_name]
 		from_msg = sorted(from_msg, key=lambda c: c.lower())
 		from_msg = str(from_msg)
@@ -360,8 +389,10 @@ def main(page: ft.Page):
 
 #-for local
 #ft.app(main)
+
 #for render
 ft.app(target=main)
+#ft.app(target=main, view=ft.WEB_BROWSER)
 
 # to deploy
 #flet publish
