@@ -361,7 +361,7 @@ def main(page: ft.Page):
 #-for local
 #ft.app(main)
 #for render
-ft.app(target=main, view=ft.WEB_BROWSER)
+ft.app(target=main)
 
 # to deploy
 #flet publish
