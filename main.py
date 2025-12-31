@@ -74,8 +74,8 @@ def main(page: ft.Page):
 	# - top label ---
 	label_top = ft.Text( f"Welcome to CloudChat",size = 20 ,weight=ft.FontWeight.BOLD)
 	# - username / password ---
-	profiel_name = ft.TextField(expand=True,hint_text="Username", value="kly")
-	profiel_pword = ft.TextField(expand=True,hint_text="Password",value="k", autofocus=True, on_submit=login)
+	profiel_name = ft.TextField(expand=True,hint_text="Username")
+	profiel_pword = ft.TextField(expand=True,hint_text="Password", on_submit=login)
 	# -login / registerd ---
 	login_btn = ft.ElevatedButton(text="Login",on_click=login)
 	registration_btn = ft.ElevatedButton(text="Registrate",on_click=registration)
