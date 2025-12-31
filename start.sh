@@ -1,2 +1,2 @@
 #!/bin/bash
-python main.py
+flet run --web --port $PORT main.py
